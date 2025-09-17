@@ -11,7 +11,7 @@ const reducer = (state = [], action) => {
   console.log(action)
   switch (action.type) {
     case ADD_TODO:
-      return [...state, { text: action.text, id: Date.now() }];
+      return [{ text: action.text, id: Date.now() }, ...state];
     case DELETE_TODO:
       return [];
     default:
@@ -20,13 +20,31 @@ const reducer = (state = [], action) => {
 };
 
 const store = createStore(reducer);
+
 store.subscribe(() => console.log(store.getState()));
+
+const paintToDos = () => {
+  const toDos = store.getState();
+  ul.innerHTML = "";
+  toDos.forEach(toDo => {
+    const li = document.createElement("li");
+    li.id = toDo.id;
+    li.innerText = toDo.text;
+    ul.appendChild(li);
+  })
+}
+
+store.subscribe(paintToDos);
+
+const addToDo = text => {
+  store.dispatch({ type: ADD_TODO, text: text });
+}
 
 const onSubmit = e => {
   e.preventDefault();
   const toDo = input.value;
   input.value = "";
-  store.dispatch({ type: ADD_TODO, text: toDo });
+  addToDo(toDo);
 };
 
 form.addEventListener("submit", onSubmit);
